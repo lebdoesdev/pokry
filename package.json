@@ -1,5 +1,5 @@
 {
-	"name": "pokry",
+	"name": "@pokry/forms",
 	"version": "0.0.1",
 	"scripts": {
 		"dev": "vite dev",
