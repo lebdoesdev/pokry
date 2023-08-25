@@ -4,4 +4,5 @@ export interface FormFieldAttributes {
     readonly?: boolean;
     min?: number;
     max?: number;
+    valid?: boolean;
 }

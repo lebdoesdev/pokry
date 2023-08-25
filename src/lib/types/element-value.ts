@@ -1,2 +1,2 @@
 export type ElementValue =
-    string | boolean | number | string[] | number[] | boolean[];
+    string | boolean | number | string[] | number[] | boolean[] | File | File[];

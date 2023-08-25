@@ -1,20 +1,26 @@
 <script lang="ts">
-    import { VALIDATOR_MAP, parseValidationString } from "$lib";
-	import { onMount } from "svelte";
+    import Pokry from "$lib/components/Pokry.svelte";
+	import type { FormSchema } from "$lib/interfaces";
+    import { pokryForms } from "$lib/utils";
 
-    onMount(async () => {
-        const example: any = {
-            name: 'Pokry',
-            age: null 
+    const schema: FormSchema = {
+        fields: [
+            { 
+                name: 'name',
+                type: 'input'
+            },
+            {
+                name: 'email',
+                type: 'email'
+            }
+        ],
+        validators: {
+            name: ['required'],
+            email: ['required_if:name,Chloe']
         }
+    }
 
-        const validationString = 'required_if:name,Pokry';
-        const parsed = parseValidationString(validationString);
-
-        console.log(await VALIDATOR_MAP.required_if(example.age, parsed.args[1], example[parsed.args[0]]));
-    });
-
+    // pokryForms.subscribe(form => console.log(form));
 </script>
-<h1>Welcome to your library project</h1>
-<p>Create your package using @sveltejs/package and preview/showcase your work with SvelteKit</p>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+
+<Pokry {schema} realTimeValidation={true} />

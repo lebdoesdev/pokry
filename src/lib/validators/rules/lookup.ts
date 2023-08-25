@@ -20,8 +20,8 @@ export async function lookup(value: any, ...args: any): Promise<boolean> {
 
     const response = await fetch(url, {
         method,
-        body: ['POST', 'PATCH'].includes(args[1]) ? JSON.stringify({ [args[3]]: value }) : null
+        body: ['POST', 'PATCH'].includes(method) ? JSON.stringify({ [param]: value }) : null
     })
 
-    return response.status === args[2];
+    return response.status === status;
 }

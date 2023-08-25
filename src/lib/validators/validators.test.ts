@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import createFetchMock from 'vitest-fetch-mock';
 import { between, email, lookup, max, mime, mimetype, min, not, pattern, required, required_if, same, url } from './rules';
 import { extractValidatorFromValidationString, extractValuesFromValidationString, parseValidationString } from './validation-helpers';
+import { DEFAULT_FORM } from '$lib/consts/default-form';
 
 const fetchMocker = createFetchMock(vi);
 
@@ -308,11 +309,14 @@ describe('validator extractor tests', () => {
 
 describe('validator parsing tests', () => {
     it('returns a correct object when a string is passed in', () => {
-        const result = parseValidationString('required_if:name,Pokry');
+        const result = parseValidationString('required_if:name,Pokry', {
+            ...DEFAULT_FORM,
+            fields: [ { name: 'name', type: 'text', value: 'This is an example' }]
+        });
 
         expect(result.validator).toBe('required_if');
         expect(result.args.length).toBe(2);
-        expect(result.args[0]).toBe('name');
+        expect(result.args[0]).toBe('This is an example');
         expect(result.args[1]).toBe('Pokry');
     })
 })
