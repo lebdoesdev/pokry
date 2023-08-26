@@ -1,9 +1,8 @@
-import type { ElementValue, ValidationRules } from "$lib/types";
+import type { ElementValue } from "$lib/types";
 import type { FormField, FormFieldWithState } from "./form-field";
 
 export interface FormSchema {
     fields: FormField[];
-    validators?: { [key: string]: ValidationRules[] };
 }
 
 export interface FormInputSchema extends FormSchema {

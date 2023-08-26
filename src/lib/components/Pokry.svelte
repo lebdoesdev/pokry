@@ -69,20 +69,14 @@
     }
 
     const validateField = async (field: FormField, withValue?: ElementValue) => {
-        if (! schema.validators) {
-            return;
-        }
-
-        const fieldValidation = schema.validators[field.name];
-
-        if (! fieldValidation) {
+        if (! field.validators?.length) {
             return;            
         }
 
         const value = withValue || field.value;
 
         const result = await Promise.all(
-            fieldValidation.map(async validator => {
+            field.validators.map(async validator => {
                 const parsed = parseValidationString(validator, internalForm);
                 const validationResult = await VALIDATOR_MAP[parsed.validator](value, ...parsed.args);
 

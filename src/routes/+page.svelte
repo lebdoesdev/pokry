@@ -11,22 +11,20 @@
         fields: [
             { 
                 name: 'email',
-                type: 'input'
+                type: 'input',
+                validators: ['required', 'email']
             },
             {
                 name: 'password',
-                type: 'input'
+                type: 'input',
+                validators: ['required']
             },
             {
                 name: 'domain',
-                type: 'input'
+                type: 'input',
+                validators: ['required', 'url']
             }
-        ],
-        validators: {
-            email: ['required', 'email'],
-            password: ['required_if:email,support@pokry.lib'],
-            domain: ['required', 'url']
-        }
+        ]
     }
 </script>
 
