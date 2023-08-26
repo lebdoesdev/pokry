@@ -1,6 +1,6 @@
 import type { ValidationTypes } from "$lib/types";
 
-export type ValidationMessage = string | { file: string, 'string': string, array: string, number: string };
+export type ValidationMessage = string | { [key: string]: string };
 
 export const VALIDATION_MESSAGES: { [key in ValidationTypes]: ValidationMessage } = {
     required: 'The {0} field is required.',
@@ -8,19 +8,19 @@ export const VALIDATION_MESSAGES: { [key in ValidationTypes]: ValidationMessage 
         file: 'The {0} must be between {1} and {2} kilobytes.',
         array: 'The {0} must have between {1} and {2} items.',
         number: 'The {0} must be between {1} and {2}',
-        string: 'The {0} must have between {1} and {2} characters.'
+        input: 'The {0} must have between {1} and {2} characters.'
     },
     max: {
         file: 'The {0} may not be greater than {1} kilobytes.',
         array: 'The {0} may not have more than {1} items.',
         number: 'The {0} may not be greater than {1}.',
-        string: 'The {0} may not have greater than {1} characters.'
+        input: 'The {0} may not have greater than {1} characters.'
     },
     min: {
         file: 'The {0} must be greater than {1} kilobytes.',
         array: 'The {0} must have more than {1} items.',
         number: 'The {0} has to be at least {1}.',
-        string: 'The {0} must have at least {1} characters.'
+        input: 'The {0} must have at least {1} characters.'
     },
     email: 'The {0} is not a valid email address.',
     lookup: 'The {0} is invalid.',

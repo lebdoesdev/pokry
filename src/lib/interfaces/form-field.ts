@@ -1,6 +1,6 @@
 import type { ElementType, ElementValue } from "$lib/types";
 import type { FormFieldAttributes } from "./form-field-attributes";
-import type { FormFieldMeta } from "./form-field-state";
+import type { FormFieldState } from "./form-field-state";
 
 export interface FormField {
     type: ElementType;
@@ -9,6 +9,6 @@ export interface FormField {
     attributes?: FormFieldAttributes;
 }
 
-export interface FormFieldWithMeta extends FormField {
-    state: FormFieldMeta;
+export interface FormFieldWithState extends FormField {
+    state: FormFieldState;
 }

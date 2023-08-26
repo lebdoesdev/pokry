@@ -26,12 +26,16 @@
     }
 </script>
 
-<input 
-    type={field.type}
-    value={field.value || ''}
-    placeholder={field.attributes?.placeholder}
-    disabled={field.attributes?.disabled}
-    readonly={field.attributes?.readonly}
-    on:input={onInput}
-    on:focus={markAsTouched}
-/>
+<div>
+    <label style="display: block;">{ field.name }</label>
+
+    <input 
+        type={field.type}
+        value={field.value || ''}
+        placeholder={field.attributes?.placeholder}
+        disabled={field.attributes?.disabled}
+        readonly={field.attributes?.readonly}
+        on:input={onInput}
+        on:focus={markAsTouched}
+    />
+</div>

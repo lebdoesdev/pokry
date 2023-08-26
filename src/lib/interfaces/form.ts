@@ -1,5 +1,5 @@
 import type { ElementValue, ValidationRules } from "$lib/types";
-import type { FormField, FormFieldWithMeta } from "./form-field";
+import type { FormField, FormFieldWithState } from "./form-field";
 
 export interface FormSchema {
     fields: FormField[];
@@ -22,7 +22,7 @@ export interface FormState {
 }
 
 export interface Form extends FormSchema {
-    fields: FormField[];
+    fields: FormFieldWithState[];
     values: { [key: string]: ElementValue | null };
     defaultValues: { [key: string]: ElementValue | null };
     state: FormState;

@@ -2,6 +2,7 @@ import { DEFAULT_FORM } from "$lib/consts/default-form";
 import type { Form, FormSchema } from "$lib/interfaces";
 import type { ElementValue } from "$lib/types";
 import { writable } from "svelte/store";
+import { findFieldIndexByName } from "./helpers";
 
 export const form = writable<Form>(DEFAULT_FORM);
 
@@ -17,6 +18,7 @@ const pokryFormActions = () => {
             }
 
             form.state[`${type}Fields`].push(fieldName);
+            form.fields[findFieldIndexByName(fieldName, form)].state[type] = true;
 
             return form;
         })
@@ -29,9 +31,18 @@ const pokryFormActions = () => {
          * Initiate a new form with all default values and store a reference to them.
          */
         initiate: (schema: FormSchema) => {
-            update(initialForm => ({
-                ...initialForm, ...schema 
-            }))
+            set({
+                ...DEFAULT_FORM,
+                ...schema,
+                fields: schema.fields.map(s => ({
+                    ...s,
+                    state: {
+                        dirty: false,
+                        isValid: true,  
+                        touched: false
+                    }
+                }))
+            })
         },
 
         /**
@@ -54,6 +65,25 @@ const pokryFormActions = () => {
                 form.values[fieldName] = value;
 
                 markFieldAsDirtyOrTouched(fieldName, 'dirty');
+
+                return form;
+            })
+        },
+
+        /**
+         * Update the validation messages for the form.
+         */
+        updateValidationMessages: (validationMessages: { [key: string]: string[] }) => {
+            update(form => {
+                form.state.errors = validationMessages;
+
+                form.fields = form.fields.map(field => ({
+                    ...field,
+                    state: {
+                        ...field.state,
+                        isValid: ! Object.keys(validationMessages).includes(field.name)
+                    }
+                }));
 
                 return form;
             })

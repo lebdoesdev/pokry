@@ -1,26 +1,33 @@
 <script lang="ts">
     import Pokry from "$lib/components/Pokry.svelte";
 	import type { FormSchema } from "$lib/interfaces";
-    import { pokryForms } from "$lib/utils";
+	import { pokryForms } from "$lib/utils";
+
+    pokryForms.subscribe(value => {
+        console.log(value);
+    })
 
     const schema: FormSchema = {
         fields: [
             { 
-                name: 'name',
+                name: 'email',
                 type: 'input'
             },
             {
-                name: 'email',
-                type: 'email'
+                name: 'password',
+                type: 'input'
+            },
+            {
+                name: 'domain',
+                type: 'input'
             }
         ],
         validators: {
-            name: ['required'],
-            email: ['required_if:name,Chloe']
+            email: ['required', 'email'],
+            password: ['required_if:email,support@pokry.lib'],
+            domain: ['required', 'url']
         }
     }
-
-    // pokryForms.subscribe(form => console.log(form));
 </script>
 
-<Pokry {schema} realTimeValidation={true} />
+<Pokry {schema} />

@@ -1,15 +1,23 @@
 <script lang="ts">
-	import type { FormField, FormSchema } from "$lib/interfaces";
+	import type { Form, FormField, FormSchema } from "$lib/interfaces";
 	import type { ElementValue } from "$lib/types";
 	import InputElement from "./elements/InputElement.svelte";
     import { pokryForms } from "$lib/utils";
-	import { onMount } from "svelte";
-	import { VALIDATOR_MAP, parseValidationString } from "$lib/validators";
+	import { onDestroy, onMount } from "svelte";
+	import { VALIDATOR_MAP, formatValidationMessage, parseValidationString } from "$lib/validators";
+	import { findFieldByName } from "$lib/utils/helpers";
+	import { DEFAULT_FORM } from "$lib/consts/default-form";
 
     export let realTimeValidation = true;
     export let schema: FormSchema = {
         fields: []
     };
+
+    let internalForm: Form = DEFAULT_FORM;
+
+    const unsubscribe = pokryForms.subscribe(value => {
+        internalForm = value;
+    })
 
     onMount(() => {
         pokryForms.initiate(schema);
@@ -36,21 +44,31 @@
         pokryForms.updateField(detail.name, detail.value);
 
         if (realTimeValidation) {
-            await validateField(field, detail.value);
+            const validationResult = await Promise.all(
+                internalForm.fields
+                    .filter(schemaField => schemaField.state.dirty)
+                    .map(schemaField => validateField(schemaField))
+            );
+
+            const validationMessages: { [key: string]: string[] } = {};
+
+            validationResult.flat().forEach(validation => {
+                if (! validation) {
+                    return;
+                }
+
+                if (validationMessages[validation.field]) {
+                    return validationMessages[validation.field].push(validation.message);
+                }
+
+                validationMessages[validation.field] = [validation.message];
+            });
+
+            pokryForms.updateValidationMessages(validationMessages);
         }
     }
 
-    const findField = (fieldName: string): FormField => {
-        const field = schema.fields.find(f => f.name === fieldName);
-
-        if (! field) {
-            throw new Error('Trying to find a field which does not exist in the current form schema.');
-        }
-
-        return field;
-    }
-
-    const validateField = async (field: FormField, withValue: ElementValue) => {
+    const validateField = async (field: FormField, withValue?: ElementValue) => {
         if (! schema.validators) {
             return;
         }
@@ -61,19 +79,33 @@
             return;            
         }
 
-        const result = await Promise.all(
-            fieldValidation.map(validator => {
-                const parsed = parseValidationString(validator, schema);
+        const value = withValue || field.value;
 
-                return VALIDATOR_MAP[parsed.validator](withValue, ...parsed.args);
+        const result = await Promise.all(
+            fieldValidation.map(async validator => {
+                const parsed = parseValidationString(validator, internalForm);
+                const validationResult = await VALIDATOR_MAP[parsed.validator](value, ...parsed.args);
+
+                if (! validationResult) {
+                    return {
+                        field: field.name,
+                        message: formatValidationMessage(parsed.validator, field, ...parsed.args)
+                    }
+                }
             })
         );
 
-        const isValid = ! result.includes(false);
-
-        console.log(isValid);
+        return result.filter(r => r !== undefined);
     }
+
+    onDestroy(unsubscribe);
 </script>
+
+{#each Object.entries(internalForm.state.errors) as [fieldName, errorMessages]} 
+    {#each errorMessages as errorMessage}
+        <p>{ errorMessage }</p>
+    {/each}
+{/each}
 
 <form>
     {#each schema.fields as field }
@@ -82,3 +114,14 @@
 
     <button type="submit">Submit Form</button>
 </form>
+
+<style>
+    form {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(5, 1fr);
+        grid-column-gap: 0px;
+        grid-row-gap: 20px;
+        width: 50%;
+    }
+</style>

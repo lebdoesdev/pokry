@@ -2,7 +2,9 @@ import { required } from "./required";
 
 export function required_if(value: any, ...args: any): Promise<boolean> {
     return new Promise(resolve => {
-        const [currentValue, anticipatedValue] = args;
+        const [_, currentValue, anticipatedValue] = args;
+
+        console.log(args);
 
         if ([undefined, null, ''].includes(currentValue)) {
             return resolve(true);
