@@ -1,7 +1,7 @@
 import type { Form, FormField, FormSchema } from "$lib/interfaces";
 import type { ValidationTypes } from "$lib/types";
 import { findFieldByName } from "$lib/utils/helpers";
-import { VALIDATION_MESSAGES } from "./validation-messages";
+import { MESSAGE_TYPE_MAP, VALIDATION_MESSAGES } from "./validation-messages";
 
 export function extractValuesFromValidationString(validationString: string) {
     if (! validationString.includes(':')) {
@@ -48,7 +48,7 @@ export function formatValidationMessage(validationType: ValidationTypes, field: 
     args.unshift(field.name);
 
     if (typeof message === 'object') {
-        message = message[field.type];
+        message = message[MESSAGE_TYPE_MAP[field.type]];
     }
 
     return message.replace(/{(\d+)}/g, function(match, number) { 

@@ -15,3 +15,9 @@ export const DEFAULT_FORM: Form = {
         touchedFields: []
     }
 }
+
+export const DEFAULT_STATE = {
+    dirty: false,
+    isValid: true,  
+    touched: false
+}

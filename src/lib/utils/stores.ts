@@ -1,4 +1,4 @@
-import { DEFAULT_FORM } from "$lib/consts/default-form";
+import { DEFAULT_FORM, DEFAULT_STATE } from "$lib/consts/default-form";
 import type { Form, FormSchema } from "$lib/interfaces";
 import type { ElementValue } from "$lib/types";
 import { writable } from "svelte/store";
@@ -20,6 +20,10 @@ const pokryFormActions = () => {
             form.state[`${type}Fields`].push(fieldName);
             form.fields[findFieldIndexByName(fieldName, form)].state[type] = true;
 
+            if (type === 'dirty' && ! form.state.isDirty) {
+                form.state.isDirty = true;
+            }
+
             return form;
         })
     }
@@ -31,18 +35,35 @@ const pokryFormActions = () => {
          * Initiate a new form with all default values and store a reference to them.
          */
         initiate: (schema: FormSchema) => {
-            set({
+            const form: Form = {
                 ...DEFAULT_FORM,
                 ...schema,
-                fields: schema.fields.map(s => ({
-                    ...s,
-                    state: {
-                        dirty: false,
-                        isValid: true,  
-                        touched: false
+                fields: schema.fields.map(s => {
+                    const dependents = s.validators
+                        ?.filter(v => v.startsWith('required_if') || v.startsWith('same'))
+                        .map((v: string) => {
+                            const regex = new RegExp(':_?([^\\s,]+)');
+
+                            const result = regex.exec(v);
+
+                            if (! result) {
+                                return v;
+                            }
+                            
+                            return result[1];
+                        });
+
+                    return {
+                        ...s,
+                        dependsOn: Array.from(new Set(dependents)),
+                        state: {
+                            ...DEFAULT_STATE
+                        }
                     }
-                }))
-            })
+                })
+            };
+
+            set(form);
         },
 
         /**
@@ -60,7 +81,6 @@ const pokryFormActions = () => {
                 if (fieldIndex === -1) {
                     return form;
                 }
-
                 form.fields[fieldIndex].value = value;
                 form.values[fieldName] = value;
 
@@ -84,6 +104,8 @@ const pokryFormActions = () => {
                         isValid: ! Object.keys(validationMessages).includes(field.name)
                     }
                 }));
+
+                form.state.isValid = Object.keys(validationMessages).length === 0;
 
                 return form;
             })

@@ -1,28 +1,26 @@
 <script lang="ts">
     import Pokry from "$lib/components/Pokry.svelte";
 	import type { FormSchema } from "$lib/interfaces";
-	import { pokryForms } from "$lib/utils";
-
-    pokryForms.subscribe(value => {
-        console.log(value);
-    })
 
     const schema: FormSchema = {
         fields: [
-            { 
+            {
                 name: 'email',
-                type: 'input',
+                label: 'Email address',
+                type: 'email',
                 validators: ['required', 'email']
             },
             {
-                name: 'password',
-                type: 'input',
-                validators: ['required']
+                name: 'confirmEmail',
+                label: 'Confirm Email Address',
+                type: 'email',
+                validators: ['same:email']
             },
             {
-                name: 'domain',
-                type: 'input',
-                validators: ['required', 'url']
+                name: 'password',
+                label: 'Password',
+                type: 'password',
+                validators: ['required']
             }
         ]
     }

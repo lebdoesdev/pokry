@@ -5,7 +5,6 @@
     import { pokryForms } from "$lib/utils";
 	import { onDestroy, onMount } from "svelte";
 	import { VALIDATOR_MAP, formatValidationMessage, parseValidationString } from "$lib/validators";
-	import { findFieldByName } from "$lib/utils/helpers";
 	import { DEFAULT_FORM } from "$lib/consts/default-form";
 
     export let realTimeValidation = true;
@@ -25,7 +24,7 @@
 
     const fieldComponentMap = [
         {
-            type: ['input', 'email'],
+            type: ['input', 'email', 'password'],
             component: InputElement
         }
     ]
@@ -57,26 +56,45 @@
                     return;
                 }
 
-                if (validationMessages[validation.field]) {
-                    return validationMessages[validation.field].push(validation.message);
+                if (Array.isArray(validation)) {
+                    // Likely come from child validation, just map it to top level.
+                    return validation.map(v => getValidationMessageFromResult(validationMessages, v));
                 }
 
-                validationMessages[validation.field] = [validation.message];
+                return getValidationMessageFromResult(validationMessages, validation);
             });
 
             pokryForms.updateValidationMessages(validationMessages);
         }
     }
 
-    const validateField = async (field: FormField, withValue?: ElementValue) => {
+    const getValidationMessageFromResult = (validationMessages: any, validation: any) => {
+        if (validationMessages[validation.field]) {
+            const alreadyReferenced = validationMessages[validation.field].findIndex(v => v === validation.message);
+
+            if (alreadyReferenced === -1) {
+                return validationMessages[validation.field].push(validation.message);
+            }
+
+            return validationMessages[validation.field];
+        }
+
+        validationMessages[validation.field] = [validation.message]
+    }
+
+    const validateField = async (field: FormField, withValue?: ElementValue, onlyValidator?: string) => {
         if (! field.validators?.length) {
             return;            
         }
 
         const value = withValue || field.value;
 
-        const result = await Promise.all(
-            field.validators.map(async validator => {
+        const validators = onlyValidator ? field.validators.filter(v => v.includes(onlyValidator)) : field.validators;
+        const children = internalForm.fields.filter(x => x.dependsOn?.includes(field.name));
+
+        const result: any = await Promise.all([
+            ...children.map(child => validateField(child, undefined, field.name)),
+            ...validators.map(async validator => {
                 const parsed = parseValidationString(validator, internalForm);
                 const validationResult = await VALIDATOR_MAP[parsed.validator](value, ...parsed.args);
 
@@ -87,9 +105,9 @@
                     }
                 }
             })
-        );
+        ]);
 
-        return result.filter(r => r !== undefined);
+        return result.filter((r: any) => r !== undefined);
     }
 
     onDestroy(unsubscribe);

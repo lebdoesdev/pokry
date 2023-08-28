@@ -2,6 +2,12 @@ import type { ValidationTypes } from "$lib/types";
 
 export type ValidationMessage = string | { [key: string]: string };
 
+export const MESSAGE_TYPE_MAP: { [key: string]: string } = {
+    password: 'input',
+    input: 'input',
+    email: 'input'
+}
+
 export const VALIDATION_MESSAGES: { [key in ValidationTypes]: ValidationMessage } = {
     required: 'The {0} field is required.',
     between: {

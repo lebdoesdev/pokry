@@ -4,6 +4,7 @@ import type { FormFieldState } from "./form-field-state";
 
 export interface FormField {
     type: ElementType;
+    label?: string;
     name: string;
     value?: ElementValue;
     attributes?: FormFieldAttributes;
@@ -12,4 +13,5 @@ export interface FormField {
 
 export interface FormFieldWithState extends FormField {
     state: FormFieldState;
+    dependsOn?: string[];
 }

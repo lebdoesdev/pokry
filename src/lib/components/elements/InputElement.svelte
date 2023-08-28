@@ -27,9 +27,10 @@
 </script>
 
 <div>
-    <label style="display: block;">{ field.name }</label>
+    <label for={field.name} style="display: block;">{ field.label || field.name }</label>
 
     <input 
+        id={field.name}
         type={field.type}
         value={field.value || ''}
         placeholder={field.attributes?.placeholder}
